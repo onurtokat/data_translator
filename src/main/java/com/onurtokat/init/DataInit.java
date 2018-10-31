@@ -18,9 +18,10 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-/**DataInit provides data loading when application initialization
+/**
+ * DataInit provides data loading when application initialization
  * and new files uploading.
- *
+ * <p>
  * When new files are uploaded, fileLoader method checks the repository
  * whether it is empty. In case of it is not empty, created collection
  * is dropped from the mongodb and recreated again.
@@ -40,7 +41,8 @@ public class DataInit implements ApplicationRunner {
         DataInit.dataRepository = dataRepository;
     }
 
-    /**overridden run method always runs when application
+    /**
+     * overridden run method always runs when application
      * initialization. It triggers fileLoader method with
      * static data path
      *
@@ -52,19 +54,18 @@ public class DataInit implements ApplicationRunner {
     }
 
     /**
-     *
      * @param path static data file path
      */
     public static void fileLoader(String path) {
 
         // dataRepository is cleaned before new loading
-        if (dataRepository.count()>0){
-            try{
+        if (dataRepository.count() > 0) {
+            try {
                 data.getDetails().clear();
                 HeaderConverter.getHeaders().clear();
                 VendorConverter.getVendors().clear();
                 MongoConfig.dropCollection();
-            }catch (Exception ex){
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
@@ -84,7 +85,12 @@ public class DataInit implements ApplicationRunner {
                     String[] splitted = currentLine.split("\\t");
                     for (int i = 0; i < splitted.length; i++) {
                         if (firstLine) {
-                            headers.add(HeaderConverter.getHeaderName(splitted[i]));//Collect header fields
+                            if (headers.contains(HeaderConverter.getHeaderName(splitted[i]))) {
+                                throw new DataException("Data file contains duplicate column name: " +
+                                        HeaderConverter.getHeaderName(splitted[i]));
+                            } else {
+                                headers.add(HeaderConverter.getHeaderName(splitted[i]));//Collect header fields
+                            }
                         } else {
                             if (headers == null) {
                                 throw new DataException("There is no header in source data file!");
