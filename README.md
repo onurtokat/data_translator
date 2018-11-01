@@ -50,8 +50,7 @@ OURIDXXX     VAL21          VAL23
 columns by utilizing all available resources (CPU cores and memory). 
 
 Data is stored in embedded MongoDB. Other in memory embedded db technologies have been tested. When comes to reading 
-speed, MongoDB is the best choice. The core scheduler is OS based, and the JVM relies on the OS scheduler it is running 
-on.
+speed, MongoDB is the best choice.
 
 ### Prerequisites
 
