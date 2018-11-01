@@ -1,6 +1,8 @@
 # Data Translator
 
-Project purpose is to achieve data after filtering and translating from input data.  
+Project purpose is to achieve data after filtering and translating from input data. Solution is developed by Spring boot 
+which provides self-contained. Application server and Database embedded itself. Therefore, it does not require external 
+resources.
 
 ## Getting Started
 
@@ -47,8 +49,9 @@ OURIDXXX     VAL21          VAL23
 ● Optional for Junior Developers: The solution must be able to process very big data files with big number of rows and 
 columns by utilizing all available resources (CPU cores and memory). 
 
-Datas are stored in embedded MongoDB. Other in memory embedded db technologies have been tested. When comes to reading 
-speed, MongoDB is the best choice.
+Data is stored in embedded MongoDB. Other in memory embedded db technologies have been tested. When comes to reading 
+speed, MongoDB is the best choice. The core scheduler is OS based, and the JVM relies on the OS scheduler it is running 
+on.
 
 ### Prerequisites
 
@@ -58,6 +61,11 @@ Also, WAR file can be generated to be deployed inside the containers. spring-boo
 additional configuration may required for embedded container dependencies.
 
 In this application, when Spring boot wake up, application begins to load initial data to mongo db. Therefore, it is required to wait loading data to mongo db.
+
+### Expected deliveries
+
+The service can run both on our SaaS platform and on premise installations. Delivered service can be easily run on
+premise even in case where docker is not available.
 
 ### Installing
 
@@ -94,13 +102,13 @@ mvn clean package
 
 war file can be seen inside the target directory.
 
-Zipped File uploading web page can be accessed;
+Zipped File uploading web page can be accessed as;
 
 ```HTML
 localhost:8080/
 ```
 
-In this page, after submiting the zipped file, application extracts zipped file and distributes three inner files to
+In this page, after submitting the zipped file, application extracts zipped file and distributes three sub files to
 related directory (initialData directory). Three files are used for filtering and translating for main data. After designing
 main data, it is loaded to mongo db. 
 
@@ -165,4 +173,4 @@ Onur Tokat
 ## Limitations
 
 * Three files (data, header, vendor) should use tab delimiter,  
-* Three files should be named as data.txt, header.txt, and vendor.txt and should be putted in zip extention file.
+* Three files should be named as data.txt, header.txt, and vendor.txt and should be putted in zip extentioned file.
