@@ -20,9 +20,9 @@ public class UnzipFileTest {
     @Test
     public void unzipFiles() {
         UnzipFile.unzipFiles(CORRECT_FILE_PATH);
-        assertTrue(new File("initialData/data_dup_column.txt").exists());
-        assertTrue(new File("initialData/header.txt").exists());
-        assertTrue(new File("initialData/vendor.txt").exists());
+        assertTrue(new File("src/test/resources/data_dup_column.txt").exists());
+        assertTrue(new File("src/test/resources/header.txt").exists());
+        assertTrue(new File("src/test/resources/vendor.txt").exists());
     }
 
     @Test(expected = UnzipException.class)

@@ -1,48 +1,54 @@
-# Place Population Calculation with Radius(km)
+# Data Translator
 
-Project purpose is to calculate population with given Place name and radius inputs. [Geonames data](http://download.geonames.org/export/dump/) is used as data source. 
+Project purpose is to achieve data after filtering and translating from input data.  
 
 ## Getting Started
 
 This project have requirements:
 
-● Provides information for at least 10 big countries
+● A data vendor delivery data in flat files.These flat files are in matrix format. The first row contains the column 
+labels, the further rows are data rows. In the first column holds a data vendor specific identifier. Column separator 
+is a tab.
 
-This project has been tested on top 10 big countries (in terms of the data size). 
-
+Example:
 ```HTML
-Name                    Last modified      Size
-US.zip                  2018-10-05 02:26   66M  
-CN.zip                  2018-10-05 02:21   23M  
-NO.zip                  2018-10-05 02:24   15M  
-IN.zip                  2018-10-05 02:22   14M  
-RU.zip                  2018-10-05 02:25   12M  
-MX.zip                  2018-10-05 02:23   12M  
-IR.zip                  2018-10-05 02:22   12M  
-TH.zip                  2018-10-05 02:25  8.6M  
-ID.zip                  2018-10-05 02:22  8.1M  
-CA.zip                  2018-10-05 02:20  7.4M
+COL0        COL1        COL2        COL3
+ID1        VAL11        VAL12        VAL12
+ID2        VAL21        VAL22        VAL23
 ```
 
-Total of row count is 6249794.
+● There is a configuration file that lists the columns that we want to extract.
 
-● Potentially scalable and extendable to cover the entire world
+Example (skip column COL2):
+```HTML
+COL0        OURID
+COL1        OURCOL1
+COL3        OURCOL3
+```
 
-Application provides user interface to upload new country data file to system
+● There is an another configuration file that lists the data vendor specific identifiers, so the rows that we want to 
+extract. Similar to point 2: these are translated to the values in column 2
 
-● Fast
+Example (skip ID1):
+```HTML
+ID2        OURIDXXX
+```
 
-Datas are stored in embedded MongoDB. Other in memory embedded db technologies have been tested. When comes to 
-reading speed, MongoDB is the best choice.
+● The task is to build a 'translator' that reads in these three files and produces output in the same structure: first 
+row with 'our' column labels, further rows with the data we wanted to extract. The output file records don't have to be 
+in the same order as the input.
 
-● Self-contained: no use of external resources during computation
+Example based on examples above:
+```HTML
+OURID        OURCOL1        OURCOL3
+OURIDXXX     VAL21          VAL23
+``` 
 
-Spring boot provides self-contained. Application server and Database embedded itself. Therefore, it does not require  
-external resources. 
+● Optional for Junior Developers: The solution must be able to process very big data files with big number of rows and 
+columns by utilizing all available resources (CPU cores and memory). 
 
-● Accepts input (place name and radius) and returns a JSON output
-
-Web user interface is provided to insert place name and radius inputs on this project.
+Datas are stored in embedded MongoDB. Other in memory embedded db technologies have been tested. When comes to reading 
+speed, MongoDB is the best choice.
 
 ### Prerequisites
 
@@ -52,33 +58,6 @@ Also, WAR file can be generated to be deployed inside the containers. spring-boo
 additional configuration may required for embedded container dependencies.
 
 In this application, when Spring boot wake up, application begins to load initial data to mongo db. Therefore, it is required to wait loading data to mongo db.
-
-Data format which will be used for formating should be same as geonames data format like;
-
-
-```HTML
-The main 'geoname' table has the following fields :
----------------------------------------------------
-geonameid         : integer id of record in geonames database
-name              : name of geographical point (utf8) varchar(200)
-asciiname         : name of geographical point in plain ascii characters, varchar(200)
-alternatenames    : alternatenames, comma separated, ascii names automatically transliterated, convenience attribute from alternatename table, varchar(10000)
-latitude          : latitude in decimal degrees (wgs84)
-longitude         : longitude in decimal degrees (wgs84)
-feature class     : see http://www.geonames.org/export/codes.html, char(1)
-feature code      : see http://www.geonames.org/export/codes.html, varchar(10)
-country code      : ISO-3166 2-letter country code, 2 characters
-cc2               : alternate country codes, comma separated, ISO-3166 2-letter country code, 200 characters
-admin1 code       : fipscode (subject to change to iso code), see exceptions below, see file admin1Codes.txt for display names of this code; varchar(20)
-admin2 code       : code for the second administrative division, a county in the US, see file admin2Codes.txt; varchar(80) 
-admin3 code       : code for third level administrative division, varchar(20)
-admin4 code       : code for fourth level administrative division, varchar(20)
-population        : bigint (8 byte int) 
-elevation         : in meters, integer
-dem               : digital elevation model, srtm3 or gtopo30, average elevation of 3''x3'' (ca 90mx90m) or 30''x30'' (ca 900mx900m) area in meters, integer. srtm processed by cgiar/ciat.
-timezone          : the iana timezone id (see file timeZone.txt) varchar(40)
-modification date : date of last modification in yyyy-MM-dd format
-```
 
 ### Installing
 
@@ -98,9 +77,8 @@ mvn clean package
 Then you can run the JAR file:
 
 ```HTML
-java -jar target/geonames_place_population-0.0.1-SNAPSHOT.jar
+java -jar target/data_translator-0.0.1-SNAPSHOT.jar
 ```
-
 
 If you want to use as WAR file, you need to change packaging tag as war in the pom.xml;
 
@@ -116,18 +94,20 @@ mvn clean package
 
 war file can be seen inside the target directory.
 
-File uploading web page can be accessed;
+Zipped File uploading web page can be accessed;
 
 ```HTML
 localhost:8080/
 ```
 
-In this page, the data file can be uploaded to insert mongo db.
+In this page, after submiting the zipped file, application extracts zipped file and distributes three inner files to
+related directory (initialData directory). Three files are used for filtering and translating for main data. After designing
+main data, it is loaded to mongo db. 
 
-Searching with place name and radius page can be accessed as;
+Result data table can seen below link;
 
 ```HTML
-localhost:8080/search
+localhost:8080/data
 ```
 
 ## Running the tests
@@ -136,11 +116,14 @@ Test classes can found under src/test/java/com.onurtokat/ directory.
 
 ```HTML
 /config/MongoDbSpringIntegrationTest.class
-/controllers/MainControllerTest.class
-/init/PlaceDataInitTest.class
-/services/PlaceServiceImplTest.class
+/controllers/DataControllerTest.class
+/controllers/DataControllerMockTest.class
+/init/DataInitTest.class
+/services/DataServiceImplTest.class
 /storage/FileSystemStorageServiceTest.class
-/utility/DistanceCalculatorTest.class
+/utility/HeaderConverterTest.class
+/utility/UnzipFileTest.class
+/utility/VendorConverterTest.class
 /SmokeTest.class
 /SpringBootMongoDbApplicationTest.class
 ```
@@ -151,7 +134,9 @@ Test classes can found under src/test/java/com.onurtokat/ directory.
 <li>Data loading steps and exception throwns have been checked</li>
 <li>Repository data correctness have been checked</li>
 <li>File operations and exceptions have been checked</li>
-<li>Haversine formula for distance calculation correctness has been checked</li>
+<li>Header data conversion has been checked</li>
+<li>Vendor data conversion has been checked</li>
+<li>Unziping data has been checked</li>
 <li>Simulated controller</li>
 <li>SpringBoot application checked with mvc</li>  
 
@@ -179,7 +164,5 @@ Onur Tokat
 
 ## Limitations
 
-* Due to geonames data, data format requires tab delimited  
-* Assuming geonames data contains correct data values
-* When Spring boot wake up, application begins to load initial data to mongo db. Therefore, it is required to wait loading data to mongo db.
-* Application have multi-file upload functionality, but not completed. Therefore, cannot be used
+* Three files (data, header, vendor) should use tab delimiter,  
+* Three files should be named as data.txt, header.txt, and vendor.txt and should be putted in zip extention file.
