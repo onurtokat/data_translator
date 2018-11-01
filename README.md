@@ -173,3 +173,4 @@ Onur Tokat
 
 * Three files (data, header, vendor) should use tab delimiter,  
 * Three files should be named as data.txt, header.txt, and vendor.txt and should be putted in zip extentioned file.
+Example zipped file can be seen under initialData directory in the project
