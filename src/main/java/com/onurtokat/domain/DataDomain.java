@@ -27,6 +27,10 @@ public class DataDomain {
         this.id = id;
     }
 
+    public void setDetails(List<String> details) {
+        this.details = details;
+    }
+
     public List<String> getDetails() {
         return details;
     }
